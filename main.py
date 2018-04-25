@@ -34,12 +34,14 @@ if args.resume:
 else:
     print("Building model")
     net = lenet.lenet()
+
 """
 if use_cuda:
     net.cuda()
     net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
     cudnn.benchmark = True
 """
+
 import torch.optim as optim
 
 criterion = nn.CrossEntropyLoss()
