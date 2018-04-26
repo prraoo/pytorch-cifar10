@@ -1,2 +1,4 @@
 #exclude data/
 data/
+lib/__pycache__
+models/__pycache__

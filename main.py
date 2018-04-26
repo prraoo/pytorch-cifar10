@@ -12,6 +12,11 @@ from torchvision import datasets, transforms
 from models import lenet
 from lib import utils, data_loader, parse_config
 
+
+import torch.optim as optim
+from torch.autograd import Variable
+
+
 args = parse_config.parser.parse_args()
 
 use_cuda = torch.cuda.is_available()
@@ -35,12 +40,25 @@ else:
     print("Building model")
     net = lenet.lenet()
 
-"""
 if use_cuda:
     net.cuda()
     net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
     cudnn.benchmark = True
+
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+
+# Training
+for epoch in range(start_epoch, start_epoch+10):
+    train(epoch)
+    test(epoch)
+#############
 """
+
+if use_cuda:
+    net.cuda()
+    net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
+    cudnn.benchmark = True
 
 import torch.optim as optim
 
@@ -54,19 +72,17 @@ for epoch in range(2):
 
         optimizer.zero_grad()
 
-        output = net(inputs)
+        outputs = net(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
 
         running_loss += loss.item()
-        if i/2000 == 1999:
-            print("[%d, %5d] loss:%3f"
-                    (epoch+1, i+1,running_loss/2000))
-            running_loss = 0
-
+        if i/2000==0:
+          print("[%d, %5d] loss:%3f" % (epoch+1, i+1,running_loss/2000))
+          running_loss = 0.0
 print("Finished Training")
 
-
+"""
 
 
