@@ -44,14 +44,14 @@ def create_tr_te_data(download="False", transform_tr=None, transform_te=None):
     tr_data = torchvision.datasets.CIFAR10(data_folder, train=True,
             transform=transform_tr, download=download)
     trainloader = torch.utils.data.DataLoader(tr_data,
-            batch_size=4, shuffle=True, num_workers=2)
+            batch_size=32, shuffle=True, num_workers=2)
     data_set["train"] = trainloader
 
     #test data
     te_data = torchvision.datasets.CIFAR10(data_folder, train=False,
            target_transform=transform_te, download=download)
     testloader = torch.utils.data.DataLoader(te_data,
-           batch_size=4, shuffle=True, num_workers=2)
+           batch_size=32, shuffle=True, num_workers=2)
     data_set["test"] = trainloader
 
     return data_set, tr_data, te_data

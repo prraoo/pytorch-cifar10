@@ -45,14 +45,76 @@ if use_cuda:
     net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
     cudnn.benchmark = True
 
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+#criterion = nn.CrossEntropyLoss()
+#optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
 
-# Training
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+
+def train(epoch):
+    print('\nEpoch: %d' % epoch)
+    net.train()
+    train_loss = 0
+    correct = 0
+    total = 0
+    for batch_idx, (inputs, targets) in enumerate(dataloader["train"]):
+        if use_cuda:
+            inputs, targets = inputs.cuda(), targets.cuda()
+        optimizer.zero_grad()
+        inputs, targets = Variable(inputs), Variable(targets)
+        outputs = net(inputs)
+        loss = criterion(outputs, targets)
+        loss.backward()
+        optimizer.step()
+
+        train_loss += loss.data[0]
+        _, predicted = torch.max(outputs.data, 1)
+        total += targets.size(0)
+        correct += predicted.eq(targets.data).cpu().sum()
+
+        utils.progress_bar(batch_idx, len(dataloader["train"]), 'Loss: %.3f | Tr_Acc: %.3f%% (%d/%d)'
+            % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+
+def test(epoch):
+    global best_acc
+    net.eval()
+    test_loss = 0
+    correct = 0
+    total = 0
+    for batch_idx,(inputs,outputs) in enumerate(dataloader["test"]):
+        if use_cuda:
+            inputs, outputs = inputs.cuda(), outputs.cuda()
+        inputs, targets = Variable(inputs, volatile=True), Variable(outputs)
+        outputs = net(inputs)
+        loss = criterion(outputs,targets)
+
+        test_loss += loss.data[0]
+        _, predicted = torch.max(outputs.data, 1)
+        total += targets.size(0)
+        correct += predicted.eq(targets.data).cpu().sum()
+
+        utils.progress_bar(batch_idx, len(dataloader["test"]), "Loss: %.3f | Te_Acc: %.3f (%d,%d)"
+                % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
+
+        #save checkpoint
+        acc = 100.*correct/total
+        print("Saving model..:)
+        state={
+            "net" : net.module if use_cuda else net,
+            "acc" : acc,
+            "epoch" : epoch,
+        }
+        if not os.path.isdir("checkpoint"):
+            os.mkdir("checkpoint")
+        torch.save(state, "./checkpoint/ckpt.t7")
+        best_acc = acc
+
 for epoch in range(start_epoch, start_epoch+10):
     train(epoch)
     test(epoch)
-#############
+
+
+############
 """
 
 if use_cuda:
