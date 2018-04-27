@@ -5,3 +5,5 @@ lib/__pycache__
 models/__pycache__
 # exclude checkpoint
 checkpoint/
+# exculde tar files
+*.tar

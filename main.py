@@ -29,13 +29,16 @@ dataloader, _, _ = data_loader.create_tr_te_data(False, transforms["train"], tra
 classes = data_loader.create_class()
 
 if args.resume:
+
     #load model from last check point
     print("resuming from last checkpoint...")
-    assert os.path.isdir('checkpoint'), "Error: no checkpoint found"
-    checkpoint = torch.load("./checkpoint/ckpt.t7")
-    net = checkpoint["net"]
-    best_acc =  checkpoint["acc"]
+    assert os.path.isfile('checkpoint/checkpoint.pth.tar'), "Error: no checkpoint found"
+    checkpoint = torch.load("./checkpoint/checkpoint.pth.tar")
     start_epoch =  checkpoint["epoch"]
+    net = checkpoint["net"]
+    best_acc =  checkpoint["best_acc"]
+    optimizer = (checkpoint["optimizer"])
+    print("Loaded model from {} , epoch {}".format("./checkpoint/checkpoint.pth.tar", checkpoint["epoch"]))
 else:
     print("Building model")
     net = lenet.lenet()
@@ -76,11 +79,18 @@ def train(epoch):
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
 def test(epoch):
+    import shutil
     global best_acc
     net.eval()
     test_loss = 0
     correct = 0
     total = 0
+
+    def save_checkpoint(state,is_best, filename="./checkpoint/checkpoint.pth.tar"):
+        torch.save(state, filename)
+        if is_best:
+            shutil.copyfile(filename, "best_model.pth.tar")
+
     for batch_idx,(inputs,outputs) in enumerate(dataloader["test"]):
         if use_cuda:
             inputs, outputs = inputs.cuda(), outputs.cuda()
@@ -92,23 +102,25 @@ def test(epoch):
         _, predicted = torch.max(outputs.data, 1)
         total += targets.size(0)
         correct += predicted.eq(targets.data).cpu().sum()
+        Te_Acc = 100.*correct/total
 
         utils.progress_bar(batch_idx, len(dataloader["test"]), "Loss: %.3f | Te_Acc: %.3f (%d,%d)"
-                % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
+                % (test_loss/(batch_idx+1), Te_Acc, correct, total))
 
         #save checkpoint
-        acc = 100.*correct/total
-        print("Saving model..:")
-        state={
+        is_best = Te_Acc > best_acc
+        best_acc = max(Te_Acc, best_acc)
+        save_checkpoint({
+            "epoch" : epoch+1,
+            "args" : args,
             "net" : net.module if use_cuda else net,
-            "acc" : acc,
-            "epoch" : epoch,
-        }
-        if not os.path.isdir("checkpoint"):
-            os.mkdir("checkpoint")
-        torch.save(state, "./checkpoint/ckpt.t7")
-        best_acc = acc
+            "best_acc" : best_acc,
+            "optimizer" : optimizer.state_dict()
+            }, is_best)
 
+
+
+    print("Saving model..:")
 for epoch in range(start_epoch, start_epoch+50):
     train(epoch)
     test(epoch)
