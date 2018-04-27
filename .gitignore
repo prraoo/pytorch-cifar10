@@ -1,4 +1,7 @@
 #exclude data/
 data/
+# exclude pycache
 lib/__pycache__
 models/__pycache__
+# exclude checkpoint
+checkpoint/

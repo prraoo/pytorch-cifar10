@@ -98,7 +98,7 @@ def test(epoch):
 
         #save checkpoint
         acc = 100.*correct/total
-        print("Saving model..:)
+        print("Saving model..:")
         state={
             "net" : net.module if use_cuda else net,
             "acc" : acc,
@@ -109,7 +109,7 @@ def test(epoch):
         torch.save(state, "./checkpoint/ckpt.t7")
         best_acc = acc
 
-for epoch in range(start_epoch, start_epoch+10):
+for epoch in range(start_epoch, start_epoch+50):
     train(epoch)
     test(epoch)
 
