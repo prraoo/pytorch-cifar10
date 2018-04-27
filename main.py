@@ -25,6 +25,9 @@ best_acc = 0
 start_epoch = 0
 writer = SummaryWriter()
 
+# for old GPUs
+use_cuda = False
+
 transforms = data_loader.create_tr_te_transfrom()
 dataloader, _, _ = data_loader.create_tr_te_data(False, transforms["train"], transforms["test"])
 
@@ -80,7 +83,7 @@ def train(epoch):
         utils.progress_bar(batch_idx, len(dataloader["train"]), 'Loss: %.3f | Tr_Acc: %.3f%% (%d/%d)'
             % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
         #tensorboard
-        writer.add_scalars("data/scalar_group", {"tr_loss":(train_loss/(batch_idx+1))})
+        writer.add_scalars("data/scalars_group", {"tr_loss":(train_loss/(batch_idx+1))},epoch)
 
 def test(epoch):
     import shutil
@@ -126,12 +129,12 @@ def test(epoch):
 
 
     print("Saving model..:")
-for epoch in range(start_epoch, start_epoch+2):
+for epoch in range(start_epoch, start_epoch+1):
     train(epoch)
     test(epoch)
 
-writer.export_scalar_to_json("./all_scalars.json")
-write.close()
+writer.export_scalars_to_json("./all_scalars.json")
+writer.close()
 ############
 """
 
