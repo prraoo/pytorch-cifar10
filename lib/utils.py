@@ -24,7 +24,7 @@ def imshow(trainloader, classes):
 _, term_width = os.popen('stty size', 'r').read().split()
 term_width = int(term_width)
 
-TOTAL_BAR_LENGTH = 65
+TOTAL_BAR_LENGTH = 75
 #last_time = time.time()
 #begin_time = last_time
 
