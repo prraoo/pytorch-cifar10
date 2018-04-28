@@ -5,6 +5,7 @@ import os
 
 import torch
 import torchvision
+import torchvision.utils as vutils
 import torch.backends.cudnn as cudnn
 import torch.nn as nn
 from torchvision import datasets, transforms
@@ -23,7 +24,7 @@ args = parse_config.parser.parse_args()
 use_cuda = torch.cuda.is_available()
 best_acc = 0
 start_epoch = 0
-writer = SummaryWriter()
+writer = SummaryWriter(args.expt_name)
 
 # for old GPUs
 use_cuda = False
@@ -99,9 +100,15 @@ def test(epoch):
             shutil.copyfile(filename, "best_model.pth.tar")
 
     for batch_idx,(inputs,outputs) in enumerate(dataloader["test"]):
+
+        input_img = vutils.make_grid(inputs, normalize=True,scale_each=True)
+        writer.add_image("Image",input_img,epoch)
+
         if use_cuda:
             inputs, outputs = inputs.cuda(), outputs.cuda()
         inputs, targets = Variable(inputs, volatile=True), Variable(outputs)
+
+
         outputs = net(inputs)
         loss = criterion(outputs,targets)
 
@@ -113,6 +120,7 @@ def test(epoch):
 
         utils.progress_bar(batch_idx, len(dataloader["test"]), "Loss: %.3f | Te_Acc: %.3f (%d,%d)"
                 % (test_loss/(batch_idx+1), Te_Acc, correct, total))
+        writer.add_scalars("data/scalars_group", {"te_loss":(test_loss/(batch_idx+1))},epoch)
 
         #save checkpoint
         is_best = Te_Acc > best_acc
@@ -124,48 +132,13 @@ def test(epoch):
             "best_acc" : best_acc,
             "optimizer" : optimizer.state_dict()
             }, is_best)
-        writer.add_scalar("Train/loss", Te_Acc, epoch)
 
 
 
     print("Saving model..:")
-for epoch in range(start_epoch, start_epoch+1):
+for epoch in range(start_epoch, start_epoch+2):
     train(epoch)
     test(epoch)
 
 writer.export_scalars_to_json("./all_scalars.json")
 writer.close()
-############
-"""
-
-if use_cuda:
-    net.cuda()
-    net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
-    cudnn.benchmark = True
-
-import torch.optim as optim
-
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-
-for epoch in range(2):
-    running_loss = 0
-    for i, data in enumerate(dataloader["train"],0):
-        inputs, labels = data
-
-        optimizer.zero_grad()
-
-        outputs = net(inputs)
-        loss = criterion(outputs, labels)
-        loss.backward()
-        optimizer.step()
-
-        running_loss += loss.item()
-        if i/2000==0:
-          print("[%d, %5d] loss:%3f" % (epoch+1, i+1,running_loss/2000))
-          running_loss = 0.0
-print("Finished Training")
-
-"""
-
-
