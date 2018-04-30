@@ -60,11 +60,13 @@ def progress_bar(current,total,msg=None):
     for i in range(term_width -int(TOTAL_BAR_LENGTH) -len(msg)-3):
         sys.stdout.write("\b")
     sys.stdout.write(" %d/%d " % (current+1,total))
-
+    """
     if current < total-1:
         sys.stdout.write("\r")
     else:
         sys.stdout.write("\n")
+    """
+    sys.stdout.write("\r")
     sys.stdout.flush()
 
 def format_time(seconds):

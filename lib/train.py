@@ -1,36 +1,51 @@
 """
 training code for model
 """
-import torch
-import torchvision
-import torch.backends.cudnn as cudnn
-import torch.nn as nn
-from torchvision import datasets, transforms
+import os
 
-from models import lenet
-from lib import utils, data_loader, parse_config
+import torch
+import torch.nn as nn
+
+from lib import utils, parse_config
 
 
 import torch.optim as optim
 from torch.autograd import Variable
 
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+from tensorboardX import SummaryWriter
+
+args = parse_config.parser.parse_args()
+writer = SummaryWriter(args.expt_name)
+embeddings_log = 5
 
 # Training
-def train(epoch):
+def train(epoch,trainloader,net,use_cuda):
     print('\nEpoch: %d' % epoch)
     net.train()
     train_loss = 0
     correct = 0
     total = 0
-    for batch_idx, (inputs, targets) in enumerate(dataloader["train"]):
+
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+
+    for batch_idx, samples in enumerate(trainloader):
+        n_iter = (epoch*len(trainloader))+batch_idx
+        inputs = samples[0]
+        targets = samples[1]
         if use_cuda:
             inputs, targets = inputs.cuda(), targets.cuda()
+        #reset grad
+        net.zero_grad()
         optimizer.zero_grad()
-        inputs, targets = Variable(inputs), Variable(targets)
+        # get data batch
+        inputs = Variable(inputs, requires_grad=True).float()
+        targets =  Variable(targets, requires_grad=False).long()
+
+        #forward
         outputs = net(inputs)
         loss = criterion(outputs, targets)
+        #backward
         loss.backward()
         optimizer.step()
 
@@ -38,12 +53,20 @@ def train(epoch):
         _, predicted = torch.max(outputs.data, 1)
         total += targets.size(0)
         correct += predicted.eq(targets.data).cpu().sum()
+        #logging
 
-        utils.progress_bar(batch_idx, len(dataloader["train"]), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-            % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+        writer.add_scalars("data/scalars_group", {"tr_loss":(train_loss/(batch_idx+1))},epoch)
 
+        #make embeddings
+        if batch_idx % embeddings_log == 0:
 
-for epoch in range(start_epoch, start_epoch+10):
-    train(epoch)
-    test(epoch)
+            utils.progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Tr_Acc: %.3f%% (%d/%d)'
+                % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+            #tensorboard
+            #out = torch.cat((outputs.data,torch.ones(len(outputs),1)),1)
+            #print("out : {}, shape : {}, type: {}".format(out, out.shape, type(out)))
+            #out = torch.cat((outputs, torch.ones(len(outputs), 1)), 1)
+
+            #writer.add_embedding(out, metadata=targets.data, label_img=inputs.data, global_step=n_iter)
+
 
