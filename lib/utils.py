@@ -16,7 +16,7 @@ utility functions for pytorch
     -visualizations
 '''
 # addtional test data https://github.com/hardikvasa/google-images-download
-# model:  https://github.com/pytorch/pytorch/issues/2001
+# visualize model:  https://github.com/pytorch/pytorch/issues/2001
 
 args = parse_config.parser.parse_args()
 
