@@ -7,7 +7,7 @@ import torch
 import torch.backends.cudnn as cudnn
 
 from models import lenet
-from lib import data_loader, parse_config
+from lib import data_loader, parse_config, utils
 from lib.train import train
 from lib.test import test
 
@@ -22,7 +22,7 @@ writer = SummaryWriter(args.expt_name)
 embeddings_log = 5
 
 # for old GPUs
-#use_cuda = args.gpu
+use_cuda = True
 
 transforms = data_loader.create_tr_te_transfrom()
 dataloader, _, _ = data_loader.create_tr_te_data(False, transforms["train"], transforms["test"])
@@ -49,12 +49,17 @@ if use_cuda:
     net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
     cudnn.benchmark = True
 
-trainloader = dataloader["train"]
-testloader = dataloader["test"]
-print("USE CUDA : ", use_cuda)
-for epoch in range(start_epoch, start_epoch+5):
-    train(epoch=epoch, trainloader=trainloader, net=net, use_cuda=use_cuda)
-    test(epoch, testloader=testloader, net=net, use_cuda=use_cuda)
+if __name__ == "__main__":
 
-#writer.export_scalars_to_json("./all_scalars.json")
-writer.close()
+    trainloader = dataloader["train"]
+    testloader = dataloader["test"]
+
+    print("USE CUDA : ", use_cuda)
+
+    for epoch in range(start_epoch, start_epoch+150):
+        lr = utils.lr_multiplier(epoch)
+        train(epoch=epoch, trainloader=trainloader, net=net, use_cuda=use_cuda,learning_rate=lr)
+        test(epoch, testloader=testloader, net=net, use_cuda=use_cuda,learning_rate= lr)
+
+    #writer.export_scalars_to_json("./all_scalars.json")
+    writer.close()

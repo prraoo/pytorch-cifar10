@@ -19,7 +19,7 @@ writer = SummaryWriter(args.expt_name)
 embeddings_log = 5
 
 # Training
-def train(epoch,trainloader,net,use_cuda):
+def train(epoch,trainloader,net,use_cuda, learning_rate):
     print('\nEpoch: %d' % epoch)
     net.train()
     train_loss = 0
@@ -27,7 +27,7 @@ def train(epoch,trainloader,net,use_cuda):
     total = 0
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+    optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4)
 
     for batch_idx, samples in enumerate(trainloader):
         n_iter = (epoch*len(trainloader))+batch_idx

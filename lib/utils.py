@@ -6,6 +6,8 @@ import sys
 import math
 import time
 
+from lib import parse_config
+
 '''
 utility functions for pytorch
     -serializing data
@@ -16,6 +18,15 @@ utility functions for pytorch
 # addtional test data https://github.com/hardikvasa/google-images-download
 # model:  https://github.com/pytorch/pytorch/issues/2001
 
+args = parse_config.parser.parse_args()
+
+def lr_multiplier(epoch):
+    lr = args.lr
+    if epoch == 40:
+        lr = args.lr*0.1
+    if epoch == 60:
+        lr = args.lr*0.01
+    return lr
 def imshow(trainloader, classes):
     img = img / 2 + 0.5     # unnormalize
     npimg = img.numpy()

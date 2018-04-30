@@ -5,7 +5,7 @@ import torch
 import torchvision.utils as vutils
 
 import torch.nn as nn
-from lib import utils, parse_config
+from lib import utils, parse_config, data_loader
 
 
 import torch.optim as optim
@@ -18,7 +18,7 @@ writer = SummaryWriter(args.expt_name)
 embeddings_log = 5
 best_acc = 0
 
-def test(epoch,testloader,net,use_cuda):
+def test(epoch,testloader,net,use_cuda, learning_rate):
     import shutil
     global best_acc
     net.eval()
@@ -32,7 +32,7 @@ def test(epoch,testloader,net,use_cuda):
             shutil.copyfile(filename, "best_model.pth.tar")
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+    optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4)
 
     for batch_idx,(inputs,outputs) in enumerate(testloader):
 
@@ -61,7 +61,7 @@ def test(epoch,testloader,net,use_cuda):
                 % (test_loss/(batch_idx+1), Te_Acc, correct, total))
 
 
-        #writer.add_scalars("data/scalars_group", {"te_loss":(test_loss/(batch_idx+1))},epoch)
+        writer.add_scalars("data/scalars_group", {"te_loss":(test_loss/(batch_idx+1))},epoch)
 
         #save checkpoint
         is_best = Te_Acc > best_acc
@@ -77,3 +77,12 @@ def test(epoch,testloader,net,use_cuda):
 
 
     print("Saving model..:")
+    classes = data_loader.create_class()
+
+    dataiter = iter(testloader)
+    img, lbl = dataiter.next()
+    #print("Ground Truth: {} ".format(lbl[j] for j in range(4)))
+    print('GroundTruth: ', ' '.join('%9s' % classes[lbl[j]] for j in range(9)))
+    _out = net(img)
+    _, predicted = torch.max(_out,1)
+    print('Predicted: ', ' '.join('%9s' % classes[predicted[j]]for j in range(9)))
