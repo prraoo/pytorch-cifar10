@@ -25,6 +25,7 @@ use_cuda = torch.cuda.is_available()
 best_acc = 0
 start_epoch = 0
 writer = SummaryWriter(args.expt_name)
+embeddings_log = 5
 
 # for old GPUs
 use_cuda = False
@@ -66,13 +67,23 @@ def train(epoch):
     train_loss = 0
     correct = 0
     total = 0
-    for batch_idx, (inputs, targets) in enumerate(dataloader["train"]):
+    for batch_idx, samples in enumerate(dataloader["train"]):
+        n_iter = (epoch*len(dataloader["train"]))+batch_idx
+        inputs = samples[0]
+        targets = samples[1]
         if use_cuda:
             inputs, targets = inputs.cuda(), targets.cuda()
+        #reset grad
+        net.zero_grad()
         optimizer.zero_grad()
-        inputs, targets = Variable(inputs), Variable(targets)
+        # get data batch
+        inputs = Variable(inputs, requires_grad=True).float()
+        targets =  Variable(targets, requires_grad=False).long()
+
+        #forward
         outputs = net(inputs)
         loss = criterion(outputs, targets)
+        #backward
         loss.backward()
         optimizer.step()
 
@@ -80,11 +91,24 @@ def train(epoch):
         _, predicted = torch.max(outputs.data, 1)
         total += targets.size(0)
         correct += predicted.eq(targets.data).cpu().sum()
+        #logging
 
-        utils.progress_bar(batch_idx, len(dataloader["train"]), 'Loss: %.3f | Tr_Acc: %.3f%% (%d/%d)'
-            % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
-        #tensorboard
-        writer.add_scalars("data/scalars_group", {"tr_loss":(train_loss/(batch_idx+1))},epoch)
+        #writer.add_scalars("data/scalars_group", {"tr_loss":(train_loss/(batch_idx+1))},epoch)
+
+        #make embeddings
+        if batch_idx % embeddings_log == 0:
+
+            utils.progress_bar(batch_idx, len(dataloader["train"]), 'Loss: %.3f | Tr_Acc: %.3f%% (%d/%d)'
+                % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+            #tensorboard
+            out = outputs.data
+            #out = torch.cat((outputs.data,torch.ones(len(outputs),1)),1)
+            print("out : {}, shape : {}, type: {}".format(out, out.shape, type(out)))
+            out = torch.cat((out, torch.ones(len(out), 1)), 1)
+
+            writer.add_embedding(out, metadata=targets.data, label_img=inputs.data, global_step=n_iter)
+
+
 
 def test(epoch):
     import shutil
@@ -102,7 +126,7 @@ def test(epoch):
     for batch_idx,(inputs,outputs) in enumerate(dataloader["test"]):
 
         input_img = vutils.make_grid(inputs, normalize=True,scale_each=True)
-        writer.add_image("Image",input_img,epoch)
+        #writer.add_image("Image",input_img,epoch)
 
         if use_cuda:
             inputs, outputs = inputs.cuda(), outputs.cuda()
@@ -115,12 +139,18 @@ def test(epoch):
         test_loss += loss.data[0]
         _, predicted = torch.max(outputs.data, 1)
         total += targets.size(0)
+
+        #predicted_img = vutils.make_grid(predicted, normalize=True,scale_each=True)
+        #writer.add_image("Image",predicted_img,epoch)
+
         correct += predicted.eq(targets.data).cpu().sum()
         Te_Acc = 100.*correct/total
 
         utils.progress_bar(batch_idx, len(dataloader["test"]), "Loss: %.3f | Te_Acc: %.3f (%d,%d)"
                 % (test_loss/(batch_idx+1), Te_Acc, correct, total))
-        writer.add_scalars("data/scalars_group", {"te_loss":(test_loss/(batch_idx+1))},epoch)
+
+
+        #writer.add_scalars("data/scalars_group", {"te_loss":(test_loss/(batch_idx+1))},epoch)
 
         #save checkpoint
         is_best = Te_Acc > best_acc
@@ -136,7 +166,7 @@ def test(epoch):
 
 
     print("Saving model..:")
-for epoch in range(start_epoch, start_epoch+2):
+for epoch in range(start_epoch, start_epoch+1):
     train(epoch)
     test(epoch)
 
