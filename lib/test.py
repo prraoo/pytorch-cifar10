@@ -81,8 +81,32 @@ def test(epoch,testloader,net,use_cuda, learning_rate):
 
     dataiter = iter(testloader)
     img, lbl = dataiter.next()
-    #print("Ground Truth: {} ".format(lbl[j] for j in range(4)))
-    print('GroundTruth: ', ' '.join('%9s' % classes[lbl[j]] for j in range(9)))
-    _out = net(img)
+    _out = net(Variable(img))
+    _pout = net(img)
     _, predicted = torch.max(_out,1)
+
+    out = torch.unsqueeze(_out,0)
+
+    #testout = torch.cat((_pout, torch.ones(len(_out),1)),1)
+    # _pout = torch.cat((_pout.data, torch.ones(len(out), 1)), 1)
+
+    print("test outputs: ",out.shape)
+
+    #print("test 1 outputs: ",testout.shape)
+
+    #GroundTruth
+    print('GroundTruth: ', ' '.join('%9s' % classes[lbl[j]] for j in range(9)))
+    #Predicted
     print('Predicted: ', ' '.join('%9s' % classes[predicted[j]]for j in range(9)))
+
+    #Embeddings
+    print("inputs: ",img.shape)
+    print("outputs: ",_out.shape)
+    print("targets: ",lbl.shape)
+
+    print(lbl)
+    lbl = [classes[i] for i in lbl]
+    print(lbl)
+    writer.add_embedding(_out.data,metadata=lbl,label_img=img.data)
+
+

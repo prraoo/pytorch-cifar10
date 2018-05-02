@@ -58,15 +58,7 @@ def train(epoch,trainloader,net,use_cuda, learning_rate):
         writer.add_scalars("data/scalars_group", {"tr_loss":(train_loss/(batch_idx+1))},epoch)
 
         #make embeddings
-        if batch_idx % embeddings_log == 0:
 
-            utils.progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Tr_Acc: %.3f%% (%d/%d)'
+        utils.progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Tr_Acc: %.3f%% (%d/%d)'
                 % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
-            #tensorboard
-            #out = torch.cat((outputs.data,torch.ones(len(outputs),1)),1)
-            #print("out : {}, shape : {}, type: {}".format(out, out.shape, type(out)))
-            #out = torch.cat((outputs, torch.ones(len(outputs), 1)), 1)
-
-            #writer.add_embedding(out, metadata=targets.data, label_img=inputs.data, global_step=n_iter)
-
 
