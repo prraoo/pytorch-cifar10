@@ -22,10 +22,10 @@ args = parse_config.parser.parse_args()
 
 def lr_multiplier(epoch):
     lr = args.lr
-    if epoch == 40:
-        lr = args.lr*0.1
-    if epoch == 60:
-        lr = args.lr*0.01
+    if epoch >= 40:
+        lr = lr*0.1
+    if epoch >= 60:
+        lr = lr*0.01
     return lr
 def imshow(trainloader, classes):
     img = img / 2 + 0.5     # unnormalize

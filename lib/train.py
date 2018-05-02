@@ -58,6 +58,8 @@ def train(epoch,trainloader,net,use_cuda, learning_rate):
         writer.add_scalars("data/scalars_group", {"tr_loss":(train_loss/(batch_idx+1))},epoch)
         writer.add_scalars("data/scalars_group", {"lr":(learning_rate)},epoch)
 
-        utils.progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Tr_Acc: %.3f%% (%d/%d)'
-                % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+        utils.progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Tr_Acc: %.3f%% (%d/%d)|lr: %.5f'
+                % (train_loss/(batch_idx+1), 100.*correct/total, correct, total, learning_rate))
+
+
 
