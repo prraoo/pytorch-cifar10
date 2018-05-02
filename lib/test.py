@@ -103,6 +103,6 @@ def test(epoch,testloader,net,use_cuda, learning_rate):
     print("test outputs: ",out.shape)
     """
     lbl = [classes[i] for i in lbl]
-    writer.add_embedding(_out.data,metadata=lbl,label_img=img.data)
+    writer.add_embedding(_out.data,metadata=lbl,label_img=img.data, global_step=epoch)
 
 

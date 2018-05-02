@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     print("USE CUDA : ", use_cuda)
 
-    for epoch in range(start_epoch, start_epoch+1):
+    for epoch in range(start_epoch, start_epoch+10):
         lr = utils.lr_multiplier(epoch)
         train(epoch=epoch, trainloader=trainloader, net=net, use_cuda=use_cuda,learning_rate=lr)
         test(epoch, testloader=testloader, net=net, use_cuda=use_cuda,learning_rate= lr)

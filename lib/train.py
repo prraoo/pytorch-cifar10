@@ -56,8 +56,7 @@ def train(epoch,trainloader,net,use_cuda, learning_rate):
         #logging
 
         writer.add_scalars("data/scalars_group", {"tr_loss":(train_loss/(batch_idx+1))},epoch)
-
-        #make embeddings
+        writer.add_scalars("data/scalars_group", {"lr":(learning_rate)},epoch)
 
         utils.progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Tr_Acc: %.3f%% (%d/%d)'
                 % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
