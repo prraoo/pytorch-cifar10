@@ -2,16 +2,28 @@
 Training CIFAR10 with pytorch built with various models:
 
 ## Models and Accuracy
-| Model             |
-| ----------------- |
-| [Lenet-1](https://)                                   |
+| Model             |Accuracy|
+| ----------------- |--------|
+| [Lenet](http://yann.lecun.com/exdb/lenet/)            |72%|
 | [VGG16](https://arxiv.org/abs/1409.1556)              | 
 | [ResNet18](https://arxiv.org/abs/1512.03385)          |
 | [ResNet50](https://arxiv.org/abs/1512.03385)          |
 | [ResNet101](https://arxiv.org/abs/1512.03385)         |
-| [MobileNetV2](https://arxiv.org/abs/1801.04381)       |
-| [ResNeXt29(32x4d)](https://arxiv.org/abs/1611.05431)  |
-| [ResNeXt29(2x64d)](https://arxiv.org/abs/1611.05431)  |
 | [DenseNet121](https://arxiv.org/abs/1608.06993)       |
-| [PreActResNet18](https://arxiv.org/abs/1603.05027)    |
-| [DPN92](https://arxiv.org/abs/1707.01629)             |
+
+## Project Structure
+
+Folder structure
+--------------
+
+```
+├── model               - this folder contains any model of your project.
+│   └── lenet.py
+├──  lib  
+│      ├──data_loader.py  - here's the data_generator that is responsible for all data handling.
+│      ├── train.py       - this folder contains trainers of your project.
+│      ├── test.py        - this folder contains trainers of your project.
+│      └── utils.py
+├──  main.py              - here's the main(s) of your project (you may need more than one main).
+│   
+```
