@@ -26,6 +26,8 @@ def lr_multiplier(epoch):
         lr = lr*0.1
     if epoch >= 60:
         lr = lr*0.01
+    if epoch >= 100:
+        lr = lr*0.001
     return lr
 def imshow(trainloader, classes):
     img = img / 2 + 0.5     # unnormalize

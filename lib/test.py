@@ -33,6 +33,7 @@ def test(epoch,testloader,net,use_cuda, learning_rate):
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4)
+    #optimizer = optim.Adam(net.parameters(), lr = learning_rate, weight_decay=5e-4)
 
     for batch_idx,(inputs,outputs) in enumerate(testloader):
 
