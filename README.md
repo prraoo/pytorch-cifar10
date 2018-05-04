@@ -12,8 +12,6 @@ Training CIFAR10 with pytorch built with various models:
 | [DenseNet121](https://arxiv.org/abs/1608.06993)       |
 
 ## Project Structure
-
-Folder structure
 --------------
 
 ```
