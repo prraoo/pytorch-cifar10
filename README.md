@@ -12,7 +12,6 @@ Training CIFAR10 with pytorch built with various models:
 | [DenseNet121](https://arxiv.org/abs/1608.06993)       |
 
 ## Project Structure
---------------
 The entire project is structured in the following manner:
 ```
 ├── model               - this folder contains any model of your project.
