@@ -13,7 +13,7 @@ Training CIFAR10 with pytorch built with various models:
 
 ## Project Structure
 --------------
-The entire project is structured in the following manner.
+The entire project is structured in the following manner:
 ```
 ├── model               - this folder contains any model of your project.
 │      └── lenet.py
