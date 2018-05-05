@@ -13,15 +13,14 @@ Training CIFAR10 with pytorch built with various models:
 
 ## Project Structure
 --------------
-
+The entire project is structured in the following manner.
 ```
 ├── model               - this folder contains any model of your project.
-│   └── lenet.py
-├──  lib  
+│      └── lenet.py
+├── lib  
 │      ├──data_loader.py  - here's the data_generator that is responsible for all data handling.
-│      ├── train.py       - this folder contains trainers of your project.
-│      ├── test.py        - this folder contains trainers of your project.
-│      └── utils.py
-├──  main.py              - here's the main(s) of your project (you may need more than one main).
-│   
+│      ├── train.py       - this file contains trainers of your project.
+│      ├── test.py        - this file contains testers of your project.
+│      └── utils.py       - this file has additional functions of your project
+├── main.py              - here's the main(s) of your project (you may need more than one main).
 ```
