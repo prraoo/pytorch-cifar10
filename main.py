@@ -6,7 +6,7 @@ import os
 import torch
 import torch.backends.cudnn as cudnn
 
-from models import lenet
+from models import lenet, resnet
 from lib import data_loader, parse_config, utils
 from lib.train import train
 from lib.test import test
@@ -42,7 +42,8 @@ if args.resume:
     print("Loaded model from {} , epoch {}".format("./checkpoint/checkpoint.pth.tar", checkpoint["epoch"]))
 else:
     print("Building model")
-    net = lenet.lenet()
+    #net = lenet.lenet()
+    net = resnet.ResNet18()
 
 if use_cuda:
     net.cuda()
