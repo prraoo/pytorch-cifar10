@@ -106,4 +106,12 @@ def test(epoch,testloader,net,use_cuda, learning_rate):
     lbl = [classes[i] for i in lbl]
     writer.add_embedding(_out.data,metadata=lbl,label_img=img.data, global_step=epoch)
 
+    # plot
+    df = utils.confusion(targets,predicted)
+    print("---------------Printing Confusion Matirx---------------")
+    print(df["confusion"])
+    print("---------------Printing Normalized Confusion Matirx---------------")
+    print(df["confusion_norm"])
+
+
 
