@@ -7,6 +7,9 @@ from torchvision import datasets, transforms
 
 data_folder = "data/"
 
+def _get_file_path(filename=""):
+    return os.path.join(data_folder,"cifar-10-batches-py",filename)
+
 def _unpickle(filename):
     import pickle
     filepath = _get_file_path(filename)
@@ -26,8 +29,6 @@ def create_tr_te_transfrom():
 
     transform_test = transforms.Compose([
                      transforms.ToTensor(),
-                     transforms.RandomCrop(32, padding=4),
-                     transforms.RandomHorizontalFlip(),
                      transforms.Normalize((0.49139968 ,0.48215841 ,0.44653091), (0.24703223 ,0.24348513 ,0.26158784)),
                      ])
 
@@ -41,22 +42,17 @@ def create_tr_te_transfrom():
 
 
 def create_tr_te_data(download="False", transform_tr=None, transform_te=None):
-    data_set = {}
-    #train data
+
     tr_data = torchvision.datasets.CIFAR10(data_folder, train=True,
             transform=transform_tr, download=download)
     trainloader = torch.utils.data.DataLoader(tr_data,
             batch_size=32, shuffle=True, num_workers=2)
-    data_set["train"] = trainloader
 
-    #test data
-    te_data = torchvision.datasets.CIFAR10(data_folder, train=False,
-           target_transform=transform_te, download=download)
-    testloader = torch.utils.data.DataLoader(te_data,
-           batch_size=32, shuffle=True, num_workers=2)
-    data_set["test"] = testloader
+    testset = torchvision.datasets.CIFAR10(data_folder, train=False,
+            transform=transform_te, download=download)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=32, shuffle=False, num_workers=2)
 
-    return data_set, tr_data, te_data
+    return trainloader, testloader
 
 def create_class():
     classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
@@ -76,34 +72,3 @@ if __name__ == "__main__":
 
     #mean = [0.49139968 0.48215841 0.44653091]
     #std = [0.24703223 0.24348513 0.26158784]
-
-"""
-# get some random training images
-dataiter = iter(_data_set["train"])
-images, labels = dataiter.next()
-
-# show images
-imshow(torchvision.utils.make_grid(images))
-# print labels
-print(' '.join('%5s' % classes[labels[j]] for j in range(4)))
-
-# without using pytorch built-in package
-data_folder = "data/"
-def _get_file_path(filename=""):
-    return os.path.join(data_folder,"cifar-10-batches-py",filename)
-
-def _unpickle(filename):
-    import pickle
-    filepath = _get_file_path(filename)
-    print("loading " + filepath)
-    with open(filepath, 'rb') as fo:
-        dict = pickle.load(fo, encoding='bytes')
-        return dict
-
-def _create_tr_te_data(batch_size):
-    for i in range(batch_size):
-        data = _unpickle("data_batch_"+str(i+1))
-    raw_img = data[b'data']
-    cls = data[b'labels']
-    return data, raw_img, cls
-"""

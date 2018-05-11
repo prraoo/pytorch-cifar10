@@ -25,7 +25,8 @@ embeddings_log = 5
 use_cuda = True
 
 transforms = data_loader.create_tr_te_transfrom()
-dataloader, _, _ = data_loader.create_tr_te_data(False, transforms["train"], transforms["test"])
+
+trainloader, testloader = data_loader.create_tr_te_data(False, transforms["train"], transforms["test"])
 
 classes = data_loader.create_class()
 
@@ -52,14 +53,11 @@ if use_cuda:
 
 if __name__ == "__main__":
 
-    trainloader = dataloader["train"]
-    testloader = dataloader["test"]
-
     print("USE CUDA : ", use_cuda)
     for epoch in range(start_epoch, start_epoch+2):
         lr = utils.lr_multiplier(epoch)
         train(epoch=epoch, trainloader=trainloader, net=net, use_cuda=use_cuda,learning_rate=lr)
         test(epoch, testloader=testloader, net=net, use_cuda=use_cuda,learning_rate= lr)
 
-    #writer.export_scalars_to_json("./all_scalars.json")
+    writer.export_scalars_to_json("./all_scalars.json")
     writer.close()

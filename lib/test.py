@@ -33,18 +33,15 @@ def test(epoch,testloader,net,use_cuda, learning_rate):
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4)
-    #optimizer = optim.Adam(net.parameters(), lr = learning_rate, weight_decay=5e-4)
 
     with torch.no_grad():
         for batch_idx,samples in enumerate(testloader):
 
             inputs = samples[0]
             targets = samples[1]
-            #input_img = vutils.make_grid(inputs, normalize=True,scale_each=True)
-            #writer.add_image("Image",input_img,epoch)
 
             if use_cuda:
-                inputs, outputs = inputs.cuda(), outputs.cuda()
+                inputs, outputs = inputs.cuda(), targets.cuda()
             inputs, targets = Variable(inputs, volatile=True), Variable(outputs)
 
             outputs = net(inputs)
@@ -91,17 +88,6 @@ def test(epoch,testloader,net,use_cuda, learning_rate):
         print('Predicted: ', ' '.join('%9s' % classes[predicted[j]]for j in range(9)))
 
         #Embeddings
-        """
-        print("inputs: ",img.shape)
-        out = torch.unsqueeze(_out,0)
-
-        #testout = torch.cat((_pout, torch.ones(len(_out),1)),1)
-        # _pout = torch.cat((_pout.data, torch.ones(len(out), 1)), 1)
-        #print("test 1 outputs: ",testout.shape)
-        print("outputs: ",_out.shape)
-        print("targets: ",lbl.shape)
-        print("test outputs: ",out.shape)
-        """
         lbl = [classes[i] for i in lbl]
         writer.add_embedding(_out.data,metadata=lbl,label_img=img.data, global_step=epoch)
 
@@ -109,8 +95,6 @@ def test(epoch,testloader,net,use_cuda, learning_rate):
         df = utils.confusion(targets,predicted)
         print("---------------Printing Confusion Matirx---------------")
         print(df["confusion"])
-        print("---------------Printing Normalized Confusion Matirx---------------")
-        print(df["confusion_norm"])
 
 
 
