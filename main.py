@@ -42,8 +42,8 @@ if args.resume:
     print("Loaded model from {} , epoch {}".format("./checkpoint/checkpoint.pth.tar", checkpoint["epoch"]))
 else:
     print("Building model")
-    #net = lenet.lenet()
-    net = resnet.ResNet18()
+    net = lenet.lenet()
+    #net = resnet.ResNet18()
 
 if use_cuda:
     net.cuda()
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     testloader = dataloader["test"]
 
     print("USE CUDA : ", use_cuda)
-    for epoch in range(start_epoch, start_epoch+150):
+    for epoch in range(start_epoch, start_epoch+2):
         lr = utils.lr_multiplier(epoch)
         train(epoch=epoch, trainloader=trainloader, net=net, use_cuda=use_cuda,learning_rate=lr)
         test(epoch, testloader=testloader, net=net, use_cuda=use_cuda,learning_rate= lr)
