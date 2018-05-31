@@ -26,7 +26,7 @@ use_cuda = True
 
 transforms = data_loader.create_tr_te_transfrom()
 
-trainloader, testloader = data_loader.create_tr_te_data(False, transforms["train"], transforms["test"])
+trainloader, testloader = data_loader.create_tr_te_data(args.download, transforms["train"], transforms["test"])
 
 classes = data_loader.create_class()
 
