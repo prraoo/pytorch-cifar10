@@ -6,7 +6,7 @@ Training CIFAR10 with pytorch built with various models:
 | ----------------- |--------|
 | [Lenet](http://yann.lecun.com/exdb/lenet/)            |72%|
 | [VGG16](https://arxiv.org/abs/1409.1556)              | 
-| [ResNet18](https://arxiv.org/abs/1512.03385)          |
+| [ResNet18](https://arxiv.org/abs/1512.03385)          |93%|
 | [ResNet50](https://arxiv.org/abs/1512.03385)          |
 | [ResNet101](https://arxiv.org/abs/1512.03385)         |
 | [DenseNet121](https://arxiv.org/abs/1608.06993)       |
